@@ -20,15 +20,32 @@ class Move {
     }
 }
 
+function showToast(player) {
+    let content = "";
+    switch (player) {
+        case "X":
+            content = "You Win!";
+            break;
+        case "O":
+            content = "You Loose!";
+            break;
+        default:
+            content = "Draw!";
+            break;
+    }
+    document.getElementById("toast-text").textContent = content;
+    $('.toast').toast("show");
+}
+
 function changeCurrentPlayer(player) {
     currentPlayer = player;
     document.getElementById("current-player-heading").textContent = "Player: " + currentPlayer;
 }
 
 function updateStats() {
-    document.getElementById("stats-wins").innerHTML = "Wins: " + wins;
-    document.getElementById("stats-draws").innerHTML = "Draws: " + draws;
-    document.getElementById("stats-losses").innerHTML = "Losses: " + losses;
+    document.getElementById("stats-wins").textContent = "Wins: " + wins;
+    document.getElementById("stats-draws").textContent = "Draws: " + draws;
+    document.getElementById("stats-losses").textContent = "Losses: " + losses;
 }
 
 function playerClickedTile(row, col) {
@@ -53,17 +70,20 @@ function checkForWin(board) {
         someoneWon = true;
         wins++;
         updateStats();
+        showToast("X");
     }
     else if (score === 10) {
         someoneWon = true;
         losses++;
         updateStats();
+        showToast("O");
     }
 
     if (isMovesLeft(board) === false) {
         someoneWon = true;
         draws++;
         updateStats();
+        showToast("");
     }
 }
 
@@ -277,9 +297,16 @@ function findBestMove(board) {
     return bestMove;
 }
 
-function makeOpponentMove() {
+async function makeOpponentMove() {
     opponentMakingMove = true;
+    await new Promise(r => setTimeout(r, 0));
     let bestMove = findBestMove(board);
-    opponentMadeMove(bestMove.row + 1, bestMove.col + 1);
+    if (bestMove.row !== -1 && bestMove.col !== -1) {
+        opponentMadeMove(bestMove.row + 1, bestMove.col + 1);
+    }
     opponentMakingMove = false;
 }
+
+$('.toast').toast({
+    delay: 10000,
+});
